@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Undo firewall changes
+sudo ufw reset
+sudo ufw disable
+
+# Restore SSH configuration
+sudo cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config
+sudo service ssh restart
+
+# Restore user and group permissions
+sudo chmod 644 /etc/passwd
+sudo chmod 644 /etc/group
+sudo chmod 400 /etc/shadow
+
+# Restore network configuration
+sudo sed -i 's/net.ipv4.tcp_syncookies=1/#net.ipv4.tcp_syncookies=1/g' /etc/sysctl.conf
+sudo sed -i 's/net.ipv4.ip_forward=0/#net.ipv4.ip_forward=0/g' /etc/sysctl.conf
+sudo sysctl -p
+
+# Remove fail2ban
+sudo apt-get remove fail2ban
+
+# Restore Apache web server configuration
+sudo cp /etc/apache2/apache2.conf.bak /etc/apache2/apache2.conf
+sudo service apache2 restart
+
+echo "System defaults restored."
+
+#This script performs the opposite of the original hardening script,
+#by undoing the changes made to the firewall,
+#SSH configuration, user and group permissions,
+#network configuration, fail2ban,
+#and Apache web server configuration, and restoring the system defaults.
